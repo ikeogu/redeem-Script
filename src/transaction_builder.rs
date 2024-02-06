@@ -1,11 +1,12 @@
+
 use bitcoin::blockdata::transaction::{Transaction, TxIn, TxOut,OutPoint, Sequence};
-use bitcoin::absolute::LockTime;
 use bitcoin::address::Address;
-use bitcoin::network::Network;
 use bitcoin::blockdata::script::ScriptBuf;
 use bitcoin::Txid;
 use bitcoin::blockdata::witness::Witness;
 use bitcoin::amount::Amount;
+use std::time::{SystemTime, UNIX_EPOCH};
+use bitcoin::consensus::encode::serialize;
 
 
 pub fn build_transaction(previous_txid: Txid , previous_output_index: u32, address: Address) -> Vec<u8> {
@@ -26,22 +27,28 @@ pub fn build_transaction(previous_txid: Txid , previous_output_index: u32, addre
         script_pubkey: address.script_pubkey(),
     };
 
+
+  // Get the current timestamp
+  let now = SystemTime::now();
+  let timestamp = now.duration_since(UNIX_EPOCH).expect("Time went backwards").as_secs();
+
+
     // Create a new transaction builder
-    let mut tx_builder = Transaction{
+    let tx_builder = Transaction{
       version:bitcoin::transaction::Version(1),
-      lock_time: ,
-      input:Vec::new(),
-      output:Vec::new()
+      lock_time:bitcoin::absolute::LockTime::from_time(timestamp as u32).expect("Failed to create lock time from timestamp"),
+      input:vec![input],
+      output:vec![output]
       
     };
 
 
-    // Set the network
-    let network = Network::Bitcoin; // Change to appropriate network if needed
-
-    // Build the transaction
-   // let transaction = tx_builder.build().expect("Failed to build transaction");
-
     // Serialize the transaction to its raw bytes
-    tx_builder.to_bytes()
+    let transaction_bytes = serialize(&tx_builder);
+    // Print the derived address
+    println!("Transaction Bytes (Hex): {}", hex::encode(&transaction_bytes));
+
+    // Return the transaction bytes
+    transaction_bytes
+
 }

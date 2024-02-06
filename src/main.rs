@@ -2,18 +2,18 @@ mod transaction_builder;
 
 pub extern crate hex;
 
-//use std::str::FromStr;
+use std::str::FromStr;
 
 use bitcoin::address::Address;
-use bitcoin::hashes::Hash;
 use bitcoin::network::Network;
 use bitcoin_hashes::hex::ToHex;
-
 use sha2::{Digest, Sha256};
 use bitcoin::blockdata::opcodes::all::OP_SHA256;
 use bitcoin::blockdata::script::Builder;
-//use bitcoin::hash_types::Txid;
-use bitcoin::Txid;
+use chrono::Local;
+use rand::Rng;
+
+
 
 
 
@@ -55,8 +55,7 @@ fn main() {
     // Print the derived address
     println!("Derived Address: {}", address.to_string());
 
-    let s = "Btrust Builders";
-    let previous_txid = process_txid;
+    let previous_txid = bitcoin::Txid::from_str(&generate_transaction_id()).unwrap();
     let previous_output_index = 0;
 
 
@@ -70,14 +69,12 @@ fn main() {
 }
 
 
-fn process_txid() -> Result<Txid, bitcoin::hashes::Error> {
-    let inner: [u8; 32] = [
-        0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-        0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-        0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-        0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE, 0xF0,
-    ];
-    Ok(Txid::from_hash(Hash::from_slice(&inner)))
+fn generate_transaction_id()-> String {
+    let now = Local::now();
+    let timestamp = now.timestamp_millis();
+    let random_number = rand::thread_rng().gen_range(0..=u64::MAX);
+    let txid_str = format!("{:0>16x}-{:x}", timestamp, random_number);
+    txid_str
 }
 
 
