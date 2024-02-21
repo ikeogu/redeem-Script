@@ -7,9 +7,10 @@ use bitcoin::blockdata::witness::Witness;
 use bitcoin::amount::Amount;
 use std::time::{SystemTime, UNIX_EPOCH};
 use bitcoin::consensus::encode::serialize;
+use bitcoin::blockdata::script::Script;
 
 
-pub fn build_transaction(previous_txid: Txid , previous_output_index: u32, address: Address) -> Vec<u8> {
+pub fn build_transaction(previous_txid: Txid , previous_output_index: u32, address: Address) -> Vec<u8,Txid, u32, Script> {
     // Construct the transaction input
     let input = TxIn {
         previous_output: OutPoint {
@@ -49,6 +50,7 @@ pub fn build_transaction(previous_txid: Txid , previous_output_index: u32, addre
     println!("Transaction Bytes (Hex): {}", hex::encode(&transaction_bytes));
 
     // Return the transaction bytes
-    transaction_bytes
+    (transaction_bytes, previous_txid, previous_output_index, locking_script)
+
 
 }
